@@ -2,7 +2,7 @@
 
 namespace App\Interfaces\Repositories;
 
-interface JobsIdTrackerRepositoryInterface extends RedisRepositoryInterface
+interface JobsIdTrackerRepositoryInterface
 {
     public function list(string $key): array;
 }
