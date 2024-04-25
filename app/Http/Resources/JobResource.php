@@ -10,9 +10,9 @@ class JobResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->resource->getId(),
-            'url' => $this->resource->getUrl(),
-            'selector' => $this->resource->getSelector(),
+            'id' => $this->resource->id,
+            'url' => $this->resource->url,
+            'selector' => $this->resource->selector,
         ];
     }
 }

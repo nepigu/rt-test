@@ -4,19 +4,9 @@ namespace App\Dto\Jobs;
 
 use Illuminate\Support\Collection;
 
-class JobsDto
+readonly class JobsDto
 {
-    private Collection $jobs;
-
-    public function getJobs(): Collection
+    public function __construct(public Collection $jobs)
     {
-        return $this->jobs;
-    }
-
-    public function addJob(JobDto $job): self
-    {
-        $this->jobs->add($job);
-
-        return $this;
     }
 }

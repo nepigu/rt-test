@@ -7,20 +7,22 @@ use App\Dto\Jobs\JobsDto;
 
 class JobFormatter
 {
-    public function format(array $job): JobDto
+    public static function format(array $jobData): JobDto
     {
-        return (new JobDto())
-            ->setUrl($job['url'])
-            ->setSelector($job['selector']);
+        return new JobDto(
+            id: $jobData['id'],
+            url: $jobData['url'],
+            selector: $jobData['selector']
+        );
     }
 
-    public function formatMultiple(array $jobsData): JobsDto
+    public static function formatMultiple(array $jobs): JobsDto
     {
-        $jobsDto = new JobsDto();
-        foreach ($jobsData as $job) {
-            $jobsDto->addJob($this->format($job));
+        $jobsCollection = collect([]);
+        foreach ($jobs as $job) {
+            $jobsCollection->add(self::format($job));
         }
 
-        return $jobsDto;
+        return new JobsDto($jobsCollection);
     }
 }

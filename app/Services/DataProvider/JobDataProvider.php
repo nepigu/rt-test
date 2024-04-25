@@ -3,46 +3,71 @@
 namespace App\Services\DataProvider;
 
 use App\Dto\Jobs\JobDto;
-use App\Http\Requests\API\StoreJobRequest;
+use App\Dto\Jobs\JobsDto;
 use App\Interfaces\Repositories\JobRepositoryInterface;
 use App\Services\Formatter\JobFormatter;
 use App\Services\Generator\IdGenerator;
+use Psr\SimpleCache\InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class JobDataProvider
 {
     public function __construct(
-        private JobRepositoryInterface $repository,
-        private IdGenerator            $idGenerator,
-        private JobFormatter           $formatter,
+        private JobRepositoryInterface    $repository,
+        private IdGenerator               $idGenerator,
         private JobsIdTrackerDataProvider $idTrackerDataProvider,
     ) {
     }
 
-    public function store(StoreJobRequest $request): JobDto
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function store(array $jobData): JobDto
     {
-        $job = $this->formatter->format($request->validated());
-        $id = $this->idGenerator->generate($job->getUrl());
-        $job->setId($id);
+        $jobData['id'] = $this->idGenerator->generate();
+        $this->idTrackerDataProvider->add($jobData['id']);
 
-        $this->idTrackerDataProvider->add($id);
-
-        return $this->repository->create($job->getId(), $job);
+        return JobFormatter::format(
+            $this->repository->create(
+                $jobData['id'],
+                JobFormatter::format($jobData)
+            )
+        );
     }
 
     public function find(string $id): JobDto
     {
-        return $this->formatter->format(
-            $this->repository->find($id)
-        );
+        $job = $this->repository->find($id);
+        if (null === $job) {
+            throw new UnprocessableEntityHttpException(
+                sprintf('Record with id %s not found', $id)
+            );
+        }
+
+        return JobFormatter::format($job);
+    }
+
+    public function all(): JobsDto
+    {
+        $ids = $this->idTrackerDataProvider->list()->toArray();
+        $jobs = [];
+        foreach ($ids as $id) {
+            $jobs[] = $this->repository->find($id);
+        }
+
+        return JobFormatter::formatMultiple($jobs);
     }
 
     /**
-     * TODO: Check if record deleted and only then remove from tracker
+     * @throws InvalidArgumentException
      */
     public function destroy(string $id): bool
     {
-        $this->idTrackerDataProvider->remove($id);
+        $isDeleted = $this->repository->delete($id);
+        if ($isDeleted) {
+            $this->idTrackerDataProvider->remove($id);
+        }
 
-        return $this->repository->delete($id);
+        return $isDeleted;
     }
 }

@@ -6,8 +6,8 @@ use App\Dto\JobsIdTracker\JobsIdTrackerDto;
 
 class JobIdTrackerFormatter
 {
-    public function format(array $ids): JobsIdTrackerDto
+    public static function format(array $ids): JobsIdTrackerDto
     {
-        return (new JobsIdTrackerDto())->setIds($ids);
+        return new JobsIdTrackerDto(collect($ids));
     }
 }

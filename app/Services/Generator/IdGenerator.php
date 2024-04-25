@@ -2,16 +2,12 @@
 
 namespace App\Services\Generator;
 
-use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 
 class IdGenerator
 {
-    public function generate(string $url): string
+    public function generate(): string
     {
-        return sprintf(
-            '%s_%s',
-            Str::slug($url, '_'),
-            time(),
-        );
+        return Uuid::uuid4()->toString();
     }
 }
