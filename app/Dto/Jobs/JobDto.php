@@ -10,6 +10,7 @@ readonly class JobDto implements SerializableDtoInterface
         public string $id,
         public string $url,
         public string $selector,
+        public ?string $content = null,
     ) {
     }
 
@@ -19,6 +20,7 @@ readonly class JobDto implements SerializableDtoInterface
             'id' => $this->id,
             'url' => $this->url,
             'selector' => $this->selector,
+            'content' => $this->content,
         ];
     }
 }

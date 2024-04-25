@@ -70,4 +70,13 @@ class JobDataProvider
 
         return $isDeleted;
     }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function update(JobDto $dto): void
+    {
+        $this->destroy($dto->id);
+        $this->repository->create($dto->id, $dto);
+    }
 }

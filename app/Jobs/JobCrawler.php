@@ -4,22 +4,20 @@ namespace App\Jobs;
 
 use App\Dto\Jobs\JobDto;
 use App\Services\Crawler\JobHttpCrawler;
-use Illuminate\Bus\Queueable;
+use App\Services\DataProvider\JobDataProvider;
+use App\Services\Formatter\JobFormatter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class JobCrawler implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public $queue = 'job-crawler';
+    use Dispatchable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(private JobHttpCrawler $crawler)
+    public function __construct(private JobDto $jobDto)
     {
         //
     }
@@ -27,9 +25,19 @@ class JobCrawler implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(JobDto $job): void
+    public function handle(JobHttpCrawler $crawler, JobDataProvider $dataProvider): void
     {
-        //TODO: Don't know what to do with this content
-        $content = $this->crawler->crawl($job);
+        $content = $crawler->crawl($this->jobDto);
+
+        $dataProvider->update(
+            JobFormatter::format(
+                [
+                    'id' => $this->jobDto->id,
+                    'url' => $this->jobDto->url,
+                    'selector' => $this->jobDto->selector,
+                    'content' => $content,
+                ]
+            )
+        );
     }
 }

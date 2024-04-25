@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreJobRequest;
 use App\Http\Resources\JobResource;
+use App\Jobs\JobCrawler;
 use App\Services\DataProvider\JobDataProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +26,10 @@ class JobController extends Controller
 
     public function store(StoreJobRequest $request): JobResource
     {
-        return new JobResource($this->dataProvider->store($request->validated()));
+        $job = $this->dataProvider->store($request->validated());
+        JobCrawler::dispatch($job);
+
+        return new JobResource($job);
     }
 
     public function show(string $id): JobResource

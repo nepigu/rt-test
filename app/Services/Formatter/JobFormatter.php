@@ -12,7 +12,8 @@ class JobFormatter
         return new JobDto(
             id: $jobData['id'],
             url: $jobData['url'],
-            selector: $jobData['selector']
+            selector: $jobData['selector'],
+            content: $jobData['content'] ?? null,
         );
     }
 

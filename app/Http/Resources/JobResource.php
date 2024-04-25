@@ -13,6 +13,7 @@ class JobResource extends JsonResource
             'id' => $this->resource->id,
             'url' => $this->resource->url,
             'selector' => $this->resource->selector,
+            'content' => $this->resource->content,
         ];
     }
 }
